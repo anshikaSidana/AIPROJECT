@@ -1,0 +1,47 @@
+<% layout('./boilerplate/boiler.ejs') -%>
+
+<script>
+        const realReview = "<%=realReviews%>";
+        const fakeReview = "<%=fakeReviews%>";
+</script>
+<h1>Review Analysis</h1>
+<canvas id="reviewChart"></canvas>
+
+<ul>
+    <% reviews.forEach(review => { %>
+        <li>
+            <%= review.content %> - <%= (review.isFake )? 'Fake' : 'Real' %>
+        </li>
+    <% }) %>
+</ul>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Ensure these are rendered correctly within the script tag
+    const realReviews = realReview; // Ensure this is a number
+    const fakeReviews = fakeReview; // Ensure this is a number
+
+    const ctx = document.getElementById('reviewChart').getContext('2d');
+    const reviewChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: ['Real Reviews', 'Fake Reviews'],
+            datasets: [{
+                data: [realReviews, fakeReviews],
+                backgroundColor: ['#36a2eb', '#ff6384']
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                title: {
+                    display: true,
+                    text: 'Review Distribution'
+                }
+            }
+        }
+    });
+</script>

@@ -1,0 +1,20 @@
+<% layout('./boilerplate/boiler.ejs') -%>
+
+<form class="col-4 offset-4 signup" action="/signup" method="POST">
+    <div class="mb-3">
+        <label for="email"  class="form-label"> Email : </label>
+        <input type="text" id="email" class="form-control" name = "email">
+    </div>
+
+    <div class="mb-3">
+        <label for="username"  class="form-label">UserName : </label>
+        <input type="text" id="username" class="form-control" name="username">
+    </div>
+
+    <div class="mb-3">
+        <label for="password"  class="form-label">Password : </label>
+        <input type="password" id="password" class="form-control" name="password">
+    </div>
+
+    <button class="btn btn-danger mt-7">SIGN IN</button>
+</form>

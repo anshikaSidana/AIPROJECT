@@ -1,0 +1,25 @@
+
+<%if(!curruser){ %>
+
+    <div class="user ms-auto" id="userButton" type="button">
+        <div class="bar">
+            <i class="fa-solid fa-bars" style="color: #6d6d6d;"></i>
+        </div>
+        <div class="icon">
+            <i class="fa-solid fa-user" style="color: #fff;"></i>
+        </div>
+    </div> 
+
+
+
+    
+<div class="user-cere"> 
+        <a href="/signup"><button id="signup">Sign Up</button></a>
+        <a href="/login"><button id="login">Login</button></a>
+    </div> 
+<%}%>
+
+
+<%if(curruser){ %>
+<div class="logout"><a href="/logout">Logout</a></div>
+<%}%>
