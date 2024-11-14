@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express =  require('express');
 const app   =  express();
 const path =  require('path');
@@ -8,12 +9,17 @@ const LocalStrategy = require('passport-local')
 const passport = require('passport')
 const session = require('express-session');
 const User = require('./model/user')
-const {isregister,saveredirect} = require('./utils/middleware')
+const asyncWrap = require('./utils/asyncWrap');
+const ExpressError = require('./utils/ExpressError');
+
+const {isregister,ispermission,saveredirect}= require('./utils/middleware');
+
 const Cart = require('./model/addtocart')
 const MongoStore = require('connect-mongo');
-const {deletereview} = require('./utils/middleware');
+const {deletereview,isAuthenticated} = require('./utils/middleware');
 const product = require('./model/product');
 const Rate = require('./model/review')
+const flash = require('connect-flash');
 const methodOverride = require('method-override');
 
 // ----------------------
@@ -46,7 +52,7 @@ app.use(bodyParser.json()); // For JSON payloads
 app.use(methodOverride('_method'));
 
 async function main() {
-    await mongoose.connect('mongodb://127.0.0.1:27017/products');
+    await mongoose.connect(process.env.MONGODB_URI);
 }
 main()
     .then(() => {
@@ -67,21 +73,32 @@ const sessionOptions = {
         httpOnly: true,
     },
     store: MongoStore.create({
-        mongoUrl: 'mongodb://localhost:27017/products'
+        mongoUrl: process.env.MONGODB_URI,
+        crypto:{
+            secret: 'mySecretCode',
+        },
+        touchAfter : 24*3600
+
     })
 };
 app.use(session(sessionOptions));  
 app.use(passport.initialize());
 app.use(passport.session());
+app.use(flash());
+
+
+app.use((req, res, next) => {
+    res.locals.success = req.flash('success');
+    res.locals.failure= req.flash('failure');
+    res.locals.curruser = req.user;
+    next();
+});
+
 
 passport.use(new LocalStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
-app.use((req,res,next)=>{
-    res.locals.curruser = req.user;
-    next();
-})
 
 
 // request-------------------------------------------------------------------------------------------------------------------
@@ -101,6 +118,20 @@ app.get('/product/:id',async(req,res)=>{
 
 
 
+// add to product request
+app.get('/addproduct',isAuthenticated,async(req,res)=>{
+    res.render('addproduct');
+})
+
+app.post('/addproduct',async(req,res)=>{
+    const data = new product(req.body.listing);
+    data.username = req.user.username;
+    await data.save();
+    req.flash('success',"product is Added ");
+    res.redirect('/home');
+
+})
+
 // ----user request -----------------------------------------------------------------------------------------------
 app.get('/signup',(async(req,res)=>{
     res.render("./user/signup.ejs")
@@ -119,11 +150,14 @@ app.post('/signup',async(req,res)=>{
         
 
         console.log(r);
+        req.flash("success","Welcome");
         res.redirect('/home');
+        
     });
 
     }catch(err){
         console.log(err);
+        req.flash("failure","User is already exists .");
         res.redirect('/signup');
     }
     }
@@ -134,6 +168,7 @@ app.get('/login',(async(req,res)=>{
 }))
 
 app.post('/login',saveredirect,passport.authenticate('local', { failureRedirect: '/login'}), function(req, res) {
+    req.flash("success","you are logged in . Welcome ");
     if(res.locals.redirecturl){
        return  res.redirect(res.locals.redirecturl);
     }
@@ -149,8 +184,9 @@ app.get('/logout',(req, res,next)=>{
             next(err);
         }
     });
+    req.flash('success',"you are successfully logout");
     res.redirect('/home');
-  });
+});
 
 
 // ----------------------------------------------------------------------------------------------------------------------------------------------
@@ -231,25 +267,10 @@ app.get('/cart', async (req, res) => {
 //-----------------------------------------------------------------------------------------------------------------
 
 
-// review
-
-
-// const validateRate = (req, res, next) => {
-//     let { error } = reviewSchema.validate(req.body);
-//     if (error) {
-//         throw new ExpressError(400, error);
-//     } else {
-//         next();
-//     }
-// }
-
-
-// for review - rating post 
 
 
 
-
-app.delete('/product/:id/review/:reviewid',isregister,(async(req,res)=>{
+app.delete('/product/:id/review/:reviewid',deletereview,isregister,asyncWrap(async(req,res)=>{
     let {id,reviewid} = req.params;
     await product.findByIdAndUpdate(id, {$pull:{review : reviewid}});       
     await Rate.findByIdAndDelete(reviewid);
@@ -261,81 +282,103 @@ app.delete('/product/:id/review/:reviewid',isregister,(async(req,res)=>{
 
 
 ////// review -----------------------------------------------------------------------------------------------------------------\
-app.post('/product/:id/review', isregister, async (req, res) => {
-    console.log(req.body); // Log the request body
+app.post('/product/:id/review', isregister,asyncWrap(async (req, res) => {
     const { id } = req.params;
-    const { content, rating } = req.body.Rate; // Adjust this if necessary
+    const { content, rating } = req.body.Rate;
 
     if (!content) {
         return res.status(400).json({ error: "Content cannot be empty" });
     }
-    try {
-        // Find the product by ID
-        const post = await product.findById(id);
-        
-        // Create a new review
-        const body = new Rate({
-            content,
-            rating,
-            author: req.user.username // Use the username from the logged-in user
-        });
 
-        // Call Python API for fake/real prediction
-        console.log({ content });
-const response = await axios.post('http://localhost:5000/predict', { content });
+    try {
+        // Find product by ID
+        const foundProduct = await product.findById(id);  // Changed variable name for clarity
+
+        // Call AI model API to check if review is fake
+        const response = await axios.post('http://localhost:5000/predict', { content });
         const isFake = response.data.isFake;
 
+        // Save the review
+        const review = new Rate({ content, rating, author: req.user.username, isFake });
+        await review.save();
 
+        // Link review to product
+        foundProduct.review.push(review._id);
+        await foundProduct.save();
 
-
-
-        // Save the review with the prediction
-        body.isFake = isFake;
-        await body.save();
-
-        // Add the review to the product
-        post.review.push(body);
-        await post.save();
-
-        // Fetch all reviews by the user for rendering
-        const reviews = await Rate.find({ author: req.user.username });
-
-        // Count fake and real reviews for pie chart
-        const totalReviews = reviews.length;
-        const fakeReviews = reviews.filter(r => r.isFake).length;
-        const realReviews = totalReviews - fakeReviews;
-
-        // Render the page with reviews and statistics
-        res.render('reviews', {
-            reviews,
-            totalReviews,
-            fakeReviews,
-            realReviews
-        });
+        res.redirect(`/product/${id}`);
     } catch (error) {
-        console.error('Error handling review submission:', error);
+        console.error("Error posting review:", error);
         res.status(500).json({ message: 'An error occurred while submitting the review.' });
     }
-});
+}));
 
 
 // Route to see reviews and analysis
-app.get('/see-reviews', async (req, res) => {
-    const reviews = await Rate.find({ author: req.user._id });
 
-    // Count fake and real reviews for pie chart
+
+app.get('/see-my-products', isAuthenticated, async (req, res) => {
+    const products = await product.find({ username: req.user.username });
+
+    if (!products.length) {
+        return res.render('my-products', { message: "You haven't added any products yet" });
+    }
+
+    res.render('my-products', { products , message : null});
+});
+
+
+
+app.get('/product/:id/reviews', isAuthenticated, async (req, res) => {
+    const products = await product.findById(req.params.id).populate('review');
+    const reviews = products.review;
+
     const totalReviews = reviews.length;
-    const fakeReviews = reviews.filter(r => r.isFake).length;
+    const fakeReviews = reviews.filter(review => review.isFake).length;
     const realReviews = totalReviews - fakeReviews;
 
     res.render('reviews', {
+        products,
         reviews,
         totalReviews,
         fakeReviews,
-        realReviews
+        realReviews,
     });
 });
 
+
+app.post('/product/:id/reviews/delete-fake',isregister,asyncWrap( async(req, res) => {
+    const products = await product.findById(req.params.id).populate('review');
+    
+    // Delete fake reviews
+    for (const review of products.review) {
+        if (review.isFake) {
+            await Rate.findByIdAndDelete(review._id);
+        }
+    }
+
+    // Update product's reviews
+    products.review = products.review.filter(review => !review.isFake);
+    await products.save();
+
+    res.redirect(`/product/${products._id}/reviews`);
+}));
+
+
+
+app.delete('/:id',isregister,ispermission,asyncWrap(async (req, res) => {
+    let { id } = req.params;
+    await product.findByIdAndDelete(id);
+    req.flash('success', 'Product deleted successfully');
+    res.redirect('/home');
+}))
+
+
+app.use((err, req, res, next) => {
+    let { statusCode, message } = err;
+    res.render('error.ejs', { message });
+
+});
 
 
 
@@ -343,3 +386,18 @@ const port  =  3000;
 app.listen(port,()=>{
     console.log("Port is running successfully");
 })
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Admin
+//  pass - 12345

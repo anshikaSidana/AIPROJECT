@@ -20,6 +20,11 @@ def predict():
         X = vectorizer.transform([content])
         prediction = model.predict(X)
         print(prediction[0])
+        if(prediction[0] == 0):
+            return jsonify({'isFake': 1})
+        else:
+            return jsonify({'isFake': 0})
+        
         return jsonify({'isFake': int(prediction[0])})
     except Exception as e:
         return jsonify({'error': str(e)}), 500  # Return error details

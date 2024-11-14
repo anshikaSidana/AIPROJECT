@@ -52,6 +52,13 @@ model.fit(X_train, y_train)
 accuracy = accuracy_score(y_test, model.predict(X_test))
 print(f"Accuracy: {accuracy * 100:.2f}%")
 
+from sklearn.metrics import classification_report
+
+y_pred = model.predict(X_test)
+print(classification_report(y_test, y_pred, target_names=['Fake', 'Genuine']))
+
+
+
 
 with open('C:\\Users\\anakv\\aipro\\website\\python\\review_model.pkl', 'wb') as model_file:
     pickle.dump(model, model_file)

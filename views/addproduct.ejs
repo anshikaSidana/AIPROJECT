@@ -1,0 +1,48 @@
+<% layout('./boilerplate/boiler.ejs') -%>
+    <div>
+
+        <form action="/addproduct" method="POST" id="form">
+            <div class="row">
+                <div class="col-8 offset-2">
+                    <h2>ADD YOUR PRODUCT</h2>
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Title</label>
+                        <input type="text" id="title" class="form-control" name="listing[title]"
+                            placeholder="Enter a catchy title" required />
+
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea name="listing[description]" id="description" class="form-control" required></textarea>
+
+                    </div>
+
+
+                    <div class="mb-3">
+                        <label for="image" class="form-label">Image</label>
+                        <input type="url" id="image" class="form-control" name="listing[image]"
+                            placeholder="Enter image URL/LINK" />
+                    </div>
+
+                   
+                        <div class="mb-3 col-4 offset-0">
+                            <label for="price" class="form-label">Price</label>
+                            <input id="price" class="form-control" name="listing[price]" placeholder="1,000" required />
+
+                    </div>
+
+                </div>
+
+                <br>
+                <br>
+                <button class="btn-add" style="width: 150px">ADD</button>
+
+            </div>
+    </div>
+
+    <br>
+    <br>
+    </form>
+
+    </div>

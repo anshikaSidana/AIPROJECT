@@ -1,0 +1,23 @@
+<% layout('./boilerplate/boiler.ejs') -%>
+<!-- my-products.ejs -->
+<% if (message) { %>
+    <p><%= message %></p>
+<% } else { %>
+    <% products.forEach(product => { %>
+        <div class="product-card">
+            <li class="cart-item">
+                <div class="cart-item-image">
+                  <img src="<%= product.image %>" alt="<%=product.name %>">
+                </div>
+                <div class="cart-item-details">
+                  <h3 class="cart-item-name"><%= product.title %></h3>
+                    <br>
+                    <br>
+                  <a href="/product/<%= product._id %>/reviews"><button type="button" class="btn btn-info">See All Reviews</button></a>
+                </div>
+              </li>
+        </div>
+    <% }) %>
+<% } %>
+
+

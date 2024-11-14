@@ -1,0 +1,16 @@
+
+<%if(success && success.length){%>
+    <div class="alert alert-success alert-dismissible fade show flash  offset-2" role="alert" style="width: 56rem;" >
+        <%= success %>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+
+<%}%>
+
+<%if(failure && failure.length){%>
+  <div class="alert alert-danger alert-dismissible fade show flash  offset-2" role="alert" style="width: 56rem;" >
+      <%= failure %>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+<%}%>

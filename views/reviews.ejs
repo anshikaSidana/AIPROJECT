@@ -1,47 +1,40 @@
-<% layout('./boilerplate/boiler.ejs') -%>
-
+<!-- reviews.ejs -->
 <script>
-        const realReview = "<%=realReviews%>";
-        const fakeReview = "<%=fakeReviews%>";
+    const realReview = "<%=realReviews%>";
+    const fakeReview = "<%=fakeReviews%>";
 </script>
-<h1>Review Analysis</h1>
-<canvas id="reviewChart"></canvas>
-
-<ul>
-    <% reviews.forEach(review => { %>
-        <li>
-            <%= review.content %> - <%= (review.isFake )? 'Fake' : 'Real' %>
-        </li>
-    <% }) %>
-</ul>
-
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-    // Ensure these are rendered correctly within the script tag
-    const realReviews = realReview; // Ensure this is a number
-    const fakeReviews = fakeReview; // Ensure this is a number
 
-    const ctx = document.getElementById('reviewChart').getContext('2d');
-    const reviewChart = new Chart(ctx, {
+<h1>Reviews for <%= products.title %></h1>
+<p>Total Reviews: <%= totalReviews %>, Fake Reviews: <%= fakeReviews %>, Real Reviews: <%= realReviews %></p>
+
+<!-- Pie Chart -->
+<canvas id="reviewsChart" width="200" height="200"></canvas>
+<script>
+    const ctx = document.getElementById('reviewsChart').getContext('2d');
+    new Chart(ctx, {
         type: 'pie',
         data: {
             labels: ['Real Reviews', 'Fake Reviews'],
             datasets: [{
-                data: [realReviews, fakeReviews],
-                backgroundColor: ['#36a2eb', '#ff6384']
+                data: [realReview,fakeReview],
+                backgroundColor: ['#36A2EB', '#FF6384']
             }]
         },
         options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    position: 'top',
-                },
-                title: {
-                    display: true,
-                    text: 'Review Distribution'
-                }
-            }
+            responsive: false, // Disable responsive resizing for fixed size
         }
     });
 </script>
+
+<!-- Delete All Fake Reviews Button -->
+<form action="/product/<%= products._id %>/reviews/delete-fake" method="POST">
+    <button type="submit">Delete All Fake Reviews</button>
+</form>
+
+<!-- List of Reviews -->
+<% reviews.forEach(review => { %>
+    <div class="review">
+        <p><%= review.content %> - <%= review.isFake ? 'Fake' : 'Real' %></p>
+    </div>
+<% }) %>
