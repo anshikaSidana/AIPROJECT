@@ -64,7 +64,7 @@ main()
 
 
 const sessionOptions = {
-    secret: 'mySecretCode',
+    secret: process.env.secret,
     resave: false,
     saveUninitialized: true,
     cookie: {
@@ -75,7 +75,7 @@ const sessionOptions = {
     store: MongoStore.create({
         mongoUrl: process.env.MONGODB_URI,
         crypto:{
-            secret: 'mySecretCode',
+            secret: process.env.secret,
         },
         touchAfter : 24*3600
 
