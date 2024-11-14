@@ -53,7 +53,10 @@ app.use(bodyParser.json()); // For JSON payloads
 app.use(methodOverride('_method'));
 
 async function main() {
-    await mongoose.connect(process.env.MONGODB_URI);
+    await mongoose.connect(process.env.MONGODB_URI, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+      });
 }
 main()
     .then(() => {
