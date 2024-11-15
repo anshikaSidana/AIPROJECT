@@ -53,3 +53,20 @@ document.getElementById('overlay').addEventListener('click', function () {
     sidebar.classList.remove('sidebar-active');
     overlay.classList.remove('overlay-active');
 });
+
+document.getElementById('sidebarToggle').addEventListener('click', function () {
+    document.getElementById('sidebar').style.left = '0';
+    document.getElementById('overlay').style.display = 'block';
+  });
+
+  // Close sidebar when overlay is clicked
+  document.getElementById('overlay').addEventListener('click', function () {
+    document.getElementById('sidebar').style.left = '-250px';
+    document.getElementById('overlay').style.display = 'none';
+  });
+
+  // Close sidebar when the close button is clicked
+  document.getElementById('closeSidebar').addEventListener('click', function () {
+    document.getElementById('sidebar').style.left = '-250px';
+    document.getElementById('overlay').style.display = 'none';
+  });

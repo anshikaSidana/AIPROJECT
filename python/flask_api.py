@@ -1,12 +1,17 @@
 from flask import Flask, request, jsonify
 import pickle
 
-# Load the model and vectorizer
-with open('C:\\Users\\anakv\\aipro\\website\\python\\review_model.pkl', 'rb') as model_file:
+
+
+import os
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+with open(os.path.join(BASE_DIR, 'review_model.pkl'), 'rb') as model_file:
     model = pickle.load(model_file)
 
-with open('C:\\Users\\anakv\\aipro\\website\\python\\vectorizer.pkl', 'rb') as vec_file:
+with open(os.path.join(BASE_DIR, 'vectorizer.pkl'), 'rb') as vec_file:
     vectorizer = pickle.load(vec_file)
+
 
 app = Flask(__name__)
 
@@ -30,4 +35,4 @@ def predict():
         return jsonify({'error': str(e)}), 500  # Return error details
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    app.run(host='0.0.0.0', port=8080)
