@@ -299,9 +299,10 @@ app.post('/product/:id/review', isregister,asyncWrap(async (req, res) => {
         const foundProduct = await product.findById(id);  // Changed variable name for clarity
 
         // Call AI model API to check if review is fake
-        const response = await axios.post('https://ai-model-2-s19o.onrender.com/predict', { content });
+        // const response = await axios.post('https://ai-model-3-9wc9.onrender.com/predict', { content });
+        const response = await axios.post('https://ai-model-0j2p.onrender.com/predict', { content });
         const isFake = response.data.isFake;
-
+       
         // Save the review
         const review = new Rate({ content, rating, author: req.user.username, isFake });
         await review.save();

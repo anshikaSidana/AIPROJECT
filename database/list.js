@@ -19,14 +19,7 @@ const data = [
         "description": "Soft and breathable cotton tee, ideal for everyday wear.",
         "price": 1219.99,
         "image": "https://m.media-amazon.com/images/I/71fcraoXa2L._SX679_.jpg"
-    },
-    {   
-        "username":"Admin",
-        "title": "Vintage Denim Jacket",
-        "description": "Timeless denim jacket with a vintage wash and classic fit.",
-        "price": 7991.99,
-        "image": "https://freakins.com/cdn/shop/files/DSC04504-Edit_96c7af1a-2d17-4e09-9ec8-ea76f88d5983.jpg?v=1707145098&width=1333"
-    },
+    }
     {   
         "username":"Admin",
         "title": "Stylish Sunglasses",
@@ -34,12 +27,7 @@ const data = [
         "price": 329.99,
         "image": "https://m.media-amazon.com/images/I/61qDaOZzfKL._AC_UY1100_.jpg"
     },
-    {    "username":"Admin",
-        "title": "Elegant Wristwatch",
-        "description": "Sophisticated wristwatch with a sleek design and stainless steel strap.",
-        "price": 9999.99,
-        "image": "https://tiimg.tistatic.com/fp/1/007/817/men-elegant-look-long-lasting-comfortable-designer-navy-blue-wrist-watch-225.jpg"
-    },
+
     {    "username":"Admin",
         "title": "Comfortable Sneakers",
         "description": "Lightweight sneakers with cushioned soles for all-day comfort.",
