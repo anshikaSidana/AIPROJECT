@@ -300,7 +300,7 @@ app.post('/product/:id/review', isregister,asyncWrap(async (req, res) => {
 
         // Call AI model API to check if review is fake
         // const response = await axios.post('https://ai-model-3-9wc9.onrender.com/predict', { content });
-        const response = await axios.post('https://ai-model-0j2p.onrender.com/predict', { content });
+        const response = await axios.post('https://ai-model-1-qep3.onrender.com/predict', { content });
         const isFake = response.data.isFake;
        
         // Save the review
