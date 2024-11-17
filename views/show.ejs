@@ -82,11 +82,11 @@
               <h5 class="card-title review-title">@<%= l.author %></h5>
               <div class="starability-result" data-rating="<%= l.rating %>"></div>
               <p class="card-text review-text"><%= l.content %></p>
-            </div>
+           
               <form action="/product/<%= list._id %>/review/<%= l._id %>?_method=DELETE" method="POST">
                 <button class="btn delete-btn btn-outline-danger mt-2">Delete</button>
               </form>
-           
+            </div>
           </div>
         </div>
       <% }) %>
