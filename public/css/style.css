@@ -113,62 +113,91 @@ body {
 
 
 /* Footer styling */
-footer {
-    background: #333; /* Dark background for the footer */
-    color: white;
-    padding: 1.5rem 0;
+
+.shop-footer {
+    background-color: #222;
+    color: #f1f1f1;
+    font-family: 'Segoe UI', sans-serif;
+    padding: 40px 20px 20px;
+}
+
+.footer-top {
     display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    max-width: 1200px;
+    margin: auto;
 }
 
-.footer .box {
-    width: 100%;
+.footer-section {
+    flex: 1 1 200px;
+    margin: 20px;
+}
+
+.footer-section h3 {
+    font-size: 18px;
+    margin-bottom: 15px;
+    color: #ffffff;
+}
+
+.footer-section p {
+    font-size: 14px;
+    color: #cccccc;
+    line-height: 1.6;
+}
+
+.footer-section ul {
+    list-style: none;
+    padding: 0;
+}
+
+.footer-section ul li {
+    margin-bottom: 10px;
+}
+
+.footer-section ul li a {
+    color: #cccccc;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.footer-section ul li a:hover {
+    text-decoration: underline;
+    color: #ffffff;
+}
+
+.social-icons a {
+    color: #f1f1f1;
+    margin-right: 15px;
+    font-size: 18px;
+    transition: color 0.3s ease;
+}
+
+.social-icons a:hover {
+    color: #36A2EB;
+}
+
+.footer-bottom {
     text-align: center;
+    margin-top: 40px;
+    font-size: 13px;
+    color: #888;
+    border-top: 1px solid #444;
+    padding-top: 15px;
 }
 
-.footer .icon i {
-    color: #e63d3d; /* Accent color for social media icons */
-    margin: 0 1rem;
-    font-size: 1.5rem;
-    transition: color 0.3s;
-}
-
-.footer .icon i:hover {
-    color: #ff5757; /* Lighter red on hover for social icons */
-}
-
-.footer .company,
-.footer .privacy {
-    margin-top: 0.8rem;
-    font-size: 0.9rem;
-    color: #ccc;
-}
-
-.footer .company:hover,
-.footer .privacy:hover {
-    color: #fff; /* Change to white on hover */
-}
-
-/* Responsive adjustments */
-@media (max-width: 576px) {
-    .navbar {
-        font-size: 1rem;
+@media (max-width: 768px) {
+    .footer-top {
+        flex-direction: column;
+        align-items: center;
     }
 
-    .card-img-top {
-        height: 15rem !important;
-    }
-
-    .footer {
-        padding: 1rem 0;
-    }
-
-    .footer .icon i {
-        font-size: 1.2rem;
+    .footer-section {
+        text-align: center;
+        margin: 20px 0;
     }
 }
+
 
 /* Container styling */
 .row {
@@ -594,7 +623,7 @@ footer {
     content: '★★★★★';
     letter-spacing: 3px;
     background: linear-gradient(90deg, #ffd700 calc(var(--rating-value) * 20%), #ddd calc(var(--rating-value) * 20%));
-    -webkit-background-clip: text;
+    /* -webkit-background-clip: text; */
     color: transparent;
 }
 

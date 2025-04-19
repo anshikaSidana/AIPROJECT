@@ -1,2 +1,20 @@
-.env
+# Python environment and files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.python_history
+python/venv/
+python/__pycache__/
+
+# Node modules
 node_modules/
+
+# Environment files
+.env
+
+# Zipped files
+*.zip
+
+# VSCode virtual envs (if any)
+.venv/

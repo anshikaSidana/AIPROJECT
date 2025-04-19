@@ -1,15 +1,159 @@
 <!-- reviews.ejs -->
-<script>
-    const realReview = "<%=realReviews%>";
-    const fakeReview = "<%=fakeReviews%>";
-</script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Product Reviews</title>
+    <script>
+        const realReview = "<%=realReviews%>";
+        const fakeReview = "<%=fakeReviews%>";
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
 
-<h1>Reviews for <%= products.title %></h1>
-<p>Total Reviews: <%= totalReviews %>, Fake Reviews: <%= fakeReviews %>, Real Reviews: <%= realReviews %></p>
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
 
-<!-- Pie Chart -->
-<canvas id="reviewsChart" width="200" height="200"></canvas>
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        p.stats {
+            text-align: center;
+            font-size: 16px;
+            color: #555;
+            margin-bottom: 30px;
+        }
+
+        canvas {
+            display: block;
+            margin: 0 auto 30px auto;
+        }
+
+        form {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        button {
+            background-color: #FF6384;
+            color: white;
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #e05574;
+        }
+
+        .review {
+            background-color: #fafafa;
+            border-left: 5px solid #36A2EB;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            transition: transform 0.2s ease;
+        }
+
+        .review.fake {
+            border-left-color: #FF6384;
+        }
+
+        .review:hover {
+            transform: scale(1.02);
+        }
+
+        .review p {
+            margin: 0;
+            color: #444;
+        }
+
+        .badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            display: inline-block;
+            margin-left: 10px;
+        }
+
+        .badge-fake {
+            background-color: #ffccd5;
+            color: #b30032;
+        }
+
+        .badge-real {
+            background-color: #cce5ff;
+            color: #0056b3;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+
+            canvas {
+                width: 100% !important;
+                height: auto !important;
+            }
+
+            button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Reviews for <%= products.title %></h1>
+    <p class="stats">
+        Total Reviews: <%= totalReviews %>, 
+        Fake Reviews: <%= fakeReviews %>, 
+        Real Reviews: <%= realReviews %>
+    </p>
+
+    <!-- Pie Chart -->
+    <canvas id="reviewsChart" width="200" height="200"></canvas>
+
+    <!-- Delete All Fake Reviews Button -->
+    <form action="/product/<%= products._id %>/reviews/delete-fake" method="POST">
+        <button type="submit">Delete All Fake Reviews</button>
+    </form>
+
+    <!-- List of Reviews -->
+    <% if (reviews.length === 0) { %>
+        <p style="text-align:center; color: #888;">No reviews available for this product yet.</p>
+    <% } else { %>
+        <% reviews.forEach(review => { %>
+            <div class="review <%= review.isFake ? 'fake' : '' %>">
+                <p>
+                    <%= review.content %>
+                    <span class="badge <%= review.isFake ? 'badge-fake' : 'badge-real' %>">
+                        <%= review.isFake ? 'Fake' : 'Real' %>
+                    </span>
+                </p>
+            </div>
+        <% }) %>
+    <% } %>
+</div>
+
 <script>
     const ctx = document.getElementById('reviewsChart').getContext('2d');
     new Chart(ctx, {
@@ -17,24 +161,14 @@
         data: {
             labels: ['Real Reviews', 'Fake Reviews'],
             datasets: [{
-                data: [realReview,fakeReview],
+                data: [realReview, fakeReview],
                 backgroundColor: ['#36A2EB', '#FF6384']
             }]
         },
         options: {
-            responsive: false, // Disable responsive resizing for fixed size
+            responsive: false
         }
     });
 </script>
-
-<!-- Delete All Fake Reviews Button -->
-<form action="/product/<%= products._id %>/reviews/delete-fake" method="POST">
-    <button type="submit">Delete All Fake Reviews</button>
-</form>
-
-<!-- List of Reviews -->
-<% reviews.forEach(review => { %>
-    <div class="review">
-        <p><%= review.content %> - <%= review.isFake ? 'Fake' : 'Real' %></p>
-    </div>
-<% }) %>
+</body>
+</html>

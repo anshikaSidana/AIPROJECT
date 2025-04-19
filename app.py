@@ -2,6 +2,7 @@ import pandas as pd
 import re
 from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import TfidfVectorizer
+
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
 import pickle
@@ -13,10 +14,11 @@ nltk.download('punkt', quiet=True)
 nltk.download('stopwords', quiet=True)
 
 
-df = pd.read_csv('C:\\Users\\anakv\\aipro\\website\\python\\dataset\\reviews.csv')  # Adjust path if necessary
+df = pd.read_csv('C:\\Users\\anakv\\aipro\\website\\python\\dataset\\reviews.csv') 
 
 df_filtered = df[df['category'] == 'Clothing_Shoes_and_Jewelry_5']
 
+print(df_filtered.shape)
 
 df_filtered = df_filtered[['text_', 'label']]
 
@@ -36,7 +38,7 @@ def preprocess_text(text):
 
 df_filtered['text_'] = df_filtered['text_'].apply(preprocess_text)
 
-
+# ----------------------------------------------------------
 vectorizer = TfidfVectorizer(max_features=5000)
 X = vectorizer.fit_transform(df_filtered['text_'])
 

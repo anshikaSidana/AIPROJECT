@@ -1,5 +1,5 @@
 const Mongoose =  require('mongoose');
-const Rate = require('./review')
+const Rate = require('./review.js')
 
 const pro =  new Mongoose.Schema({
     title:{

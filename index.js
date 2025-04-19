@@ -18,10 +18,11 @@ const {isregister,ispermission,saveredirect}= require('./utils/middleware');
 const Cart = require('./model/addtocart')
 const MongoStore = require('connect-mongo');
 const {deletereview,isAuthenticated} = require('./utils/middleware');
-const product = require('./model/product');
-const Rate = require('./model/review')
+const product = require('./model/product.js');
+const Rate = require('./model/review.js')
 const flash = require('connect-flash');
 const methodOverride = require('method-override');
+
 
 // ----------------------
 
@@ -43,6 +44,7 @@ app.use(express.json());
 
 
 const bodyParser = require('body-parser');
+const connectDB = require('./database/database.js');
 
 
 app.use(bodyParser.urlencoded({ extended: true })); // For form submissions
@@ -52,19 +54,7 @@ app.use(bodyParser.json()); // For JSON payloads
 
 app.use(methodOverride('_method'));
 
-async function main() {
-    await mongoose.connect(process.env.MONGODB_URI, {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-      });
-}
-main()
-    .then(() => {
-        console.log("connection successful");
-    })
-    .catch((err) => {
-        console.log("ERROR IS : " + err);
-    })
+connectDB();
 
 
 const sessionOptions = {
@@ -77,7 +67,7 @@ const sessionOptions = {
         httpOnly: true,
     },
     store: MongoStore.create({
-        mongoUrl: process.env.MONGODB_URI,
+        mongoUrl: process.env.MONGOURL,
         crypto:{
             secret: process.env.secret,
         },
@@ -144,7 +134,7 @@ app.get('/signup',(async(req,res)=>{
 app.post('/signup',async(req,res)=>{
     try{
         const {username,email,password} = req.body
-         const newUser = new User({username,email});
+        const newUser = new User({username,email});
         const resultuser= await User.register(newUser,password);
 
         const r = req.login(resultuser,(err)=>{
@@ -268,7 +258,7 @@ app.get('/cart', async (req, res) => {
   });
   
 
-//-----------------------------------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------------------------------------
 
 
 
@@ -285,7 +275,7 @@ app.delete('/product/:id/review/:reviewid',deletereview,isregister,asyncWrap(asy
 
 
 
-////// review -----------------------------------------------------------------------------------------------------------------\
+//// review -----------------------------------------------------------------------------------------------------------------\
 app.post('/product/:id/review', isregister,asyncWrap(async (req, res) => {
     const { id } = req.params;
     const { content, rating } = req.body.Rate;
@@ -300,9 +290,10 @@ app.post('/product/:id/review', isregister,asyncWrap(async (req, res) => {
 
         // Call AI model API to check if review is fake
         // const response = await axios.post('https://ai-model-3-9wc9.onrender.com/predict', { content });
-        const response = await axios.post('https://ai-model-1-qep3.onrender.com/predict', { content });
-        const isFake = response.data.isFake;
-       
+        const response = await axios.post('http://127.0.0.1:5000/predict_review', { "text" : content });
+        const isFake = response.data.prediction === "FAKE" ? 1 : 0;
+        // console.log(isFake);
+
         // Save the review
         const review = new Rate({ content, rating, author: req.user.username, isFake });
         await review.save();

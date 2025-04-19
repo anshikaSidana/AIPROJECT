@@ -1,51 +1,70 @@
 from flask import Flask, request, jsonify
 import pickle
+from textblob import TextBlob
+import re
+from nltk.corpus import stopwords
+from nltk.stem.porter import PorterStemmer
+import nltk
+from flask_cors import CORS
 import time
-import os
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-with open(os.path.join(BASE_DIR, 'review_model.pkl'), 'rb') as model_file:
-    model = pickle.load(model_file)
-
-with open(os.path.join(BASE_DIR, 'vectorizer.pkl'), 'rb') as vec_file:
-    vectorizer = pickle.load(vec_file)
-
+nltk.download('stopwords')
 
 app = Flask(__name__)
-ip_tracking = {}
+CORS(app)
 
+model = pickle.load(open("reviewModel.pkl", "rb"))
+vectorizer = pickle.load(open("reviewVecotorizer.pkl", "rb"))
 
-@app.route('/predict', methods=['POST'])
-def predict():
-    content = request.json.get('content', '')  
-    if not content:
-        return jsonify({'error': 'No content provided'}), 400  
+sw = set(stopwords.words("english"))
+stemmer = PorterStemmer()
 
-    client_ip = request.remote_addr  # Get client's IP address
+# Track recent review times per IP or source
+review_timestamps = {}
+
+def preprocess(text):
+    txt = TextBlob(text)
+    result = txt.correct()
+    removed_special = re.sub("[^a-zA-Z]", " ", str(result))
+    tokens = removed_special.lower().split()
+    cleaned = [t for t in tokens if t not in sw]
+    stemmed = [stemmer.stem(t) for t in cleaned]
+    return " ".join(stemmed), len(tokens)
+
+@app.route("/predict_review", methods=["POST"])
+def predict_review():
+    data = request.get_json()
+    print("Received data:", data)
+
+    if not data or "text" not in data:
+        return jsonify({ "error": "No text provided" }), 400
+
+    review_text = data["text"]
+    source = request.remote_addr  # IP address of the client
     current_time = time.time()
 
-    if client_ip in ip_tracking:
-        last_time = ip_tracking[client_ip]
-        if current_time - last_time < 60:  # 60-second threshold
-            return jsonify({'isFake': 1, 'reason': 'Reviews from the same IP in quick succession are considered fake'})
+    # Check if the same source has sent a review in the last 30 seconds
+    if source in review_timestamps:
+        last_time = review_timestamps[source]
+        if current_time - last_time < 30:
+            print("Detected multiple reviews in 30 sec from same IP:", source)
+            return jsonify({ "prediction": "FAKE", "reason": "Multiple reviews within 30 seconds from same address" })
 
-    # Update IP tracking
-    ip_tracking[client_ip] = current_time
+    # Update latest time for this source
+    review_timestamps[source] = current_time
 
-    try:
-        X = vectorizer.transform([content])
-        prediction = model.predict(X)
-        print(prediction[0])
-        if(prediction[0] == 0):
-            return jsonify({'isFake': 1})
-        else:
-            return jsonify({'isFake': 0})
-        
-        return jsonify({'isFake': int(prediction[0])})
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500  # Return error details
+    cleaned, word_count = preprocess(review_text)
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=10000)
+    # Basic rule: if more than 30 words, mark as fake
+    if word_count > 30:
+        prediction_label = "FAKE"
+    else:
+        vectorized = vectorizer.transform([cleaned])
+        prediction = model.predict(vectorized)
+        prediction_label = "FAKE" if prediction[0] == 0 else "REAL"
 
+    print("Prediction:", prediction_label)
+    return jsonify({ "prediction": prediction_label })
 
+if __name__ == "__main__":
+    app.run(debug=True)

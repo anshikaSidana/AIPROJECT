@@ -19,7 +19,7 @@ const data = [
         "description": "Soft and breathable cotton tee, ideal for everyday wear.",
         "price": 1219.99,
         "image": "https://m.media-amazon.com/images/I/71fcraoXa2L._SX679_.jpg"
-    }
+    },
     {   
         "username":"Admin",
         "title": "Stylish Sunglasses",
