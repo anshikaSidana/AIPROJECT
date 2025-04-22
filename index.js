@@ -85,6 +85,7 @@ app.use((req, res, next) => {
     res.locals.success = req.flash('success');
     res.locals.failure= req.flash('failure');
     res.locals.curruser = req.user;
+    console.log("curr user :: "+curruser)
     next();
 });
 

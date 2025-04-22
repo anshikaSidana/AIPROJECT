@@ -46,7 +46,9 @@
 
     "mongo-store": "^0.0.2",
 
-    "mongoose": "^8.7.3",
+    "mongodb": "^6.16.0",
+
+    "mongoose": "^8.13.2",
 
     "node": "^20.18.0",
 

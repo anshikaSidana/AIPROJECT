@@ -5,7 +5,11 @@ const data =  require('./list')
 
 const connectDB = ()=>{
     async function main(){
-        await mongoose.connect(process.env.MONGOURL);
+        mongoose.connect(process.env.MONGOURL, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+            ssl: true
+          })
     }
     main()
     .then(async ()=>{
